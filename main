@@ -1,0 +1,45 @@
+import re 
+# Common weak passwords (can be expanded) 
+COMMON_PASSWORDS = {"password", "123456", "123456789", "qwerty", "abc123", "password1", 
+"12345"} 
+def check_password_strength(password): 
+# Criteria 
+min_length = 8 
+length_score = len(password) >= min_length 
+char_variety_score = ( 
+bool(re.search(r"[a-z]", password)) and  # At least one lowercase 
+bool(re.search(r"[A-Z]", password)) and  # At least one uppercase 
+bool(re.search(r"[0-9]", password)) and  # At least one digit 
+bool(re.search(r"[!@#$%^&*(),.?\":{}|<>]", password))  # At least one special character 
+) 
+common_word_score = password.lower() not in COMMON_PASSWORDS 
+# Scoring and classification 
+score = sum([length_score, char_variety_score, common_word_score]) 
+if score == 3: 
+strength = "Strong" 
+elif score == 2: 
+strength = "Moderate" 
+else: 
+strength = "Weak" 
+return strength, not length_score, not char_variety_score, not common_word_score 
+def suggest_improvements(password): 
+_, too_short, lacks_variety, is_common = check_password_strength(password) 
+suggestions = [] 
+if too_short: 
+suggestions.append("Make the password at least 8 characters long.") 
+if lacks_variety: 
+suggestions.append( 
+"Include a mix of uppercase, lowercase, numbers, and special characters." 
+) 
+if is_common: 
+suggestions.append("Avoid using common or easily guessed passwords.") 
+return suggestions 
+# Main program 
+if __name__ == "__main__": 
+password = input("Enter your password: ").strip() 
+strength, _, _, _ = check_password_strength(password) 
+print(f"Password strength: {strength}") 
+if strength != "Strong": 
+print("Suggestions to improve your password:") 
+for suggestion in suggest_improvements(password): 
+print(f"- {suggestion}") 
